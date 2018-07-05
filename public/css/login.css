@@ -1,0 +1,19 @@
+#login {
+    width: 20%;
+    margin-left: 40%;
+}
+input {
+    margin: 10px;
+}
+#username, #password {
+    width: 80%;
+    margin-left: 10%;
+    height: 5%;
+    padding: 5%;
+}
+#submit {
+    margin-right: 10%;
+    float: right;
+    width: 40%;
+    height: 5%;
+}

@@ -1,0 +1,30 @@
+#product {
+    width:30%;
+    margin-left: 35%;
+}
+#title, #description, #price {
+    width: 80%;
+    margin-left: 10%;
+    height: 5%;
+    padding: 5%;
+}
+input {
+    margin: 10px;
+}
+textarea {
+    min-width: 80%;
+    min-height: 20%;
+    margin-left: 10%;
+    margin-right: 10%;
+}
+#image {
+    width: 80%;
+    margin-right: 10%;
+    float: right;
+}
+#save {
+    width: 30%;
+    height: 5%;
+    margin-left: 10%;
+    float: left;
+}
