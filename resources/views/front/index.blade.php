@@ -4,7 +4,7 @@
     </head>
     <body>
         <a href="cart.php">
-            <button><?= __('Go to cart') ?></button>
+            <button><?=('Go to cart') ?></button>
         </a>
         
         <?php foreach ($products as $product) : ?>
@@ -21,5 +21,4 @@
         
         <?php endforeach; ?>
     </body>
-
 </html>

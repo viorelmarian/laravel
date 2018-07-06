@@ -12,3 +12,5 @@
 */
 
 Route::get('/', 'FrontController@index');
+Route::get('/cart.php', 'FrontController@cart');
+Route::post('/cart.php', 'FrontController@cart');
