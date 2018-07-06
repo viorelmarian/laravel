@@ -4,13 +4,13 @@
     </head>
     <body>
         <a href="cart.php">
-            <button><?=('Go to cart') ?></button>
+            <button>{{ __('Go to cart') }}</button>
         </a>
         
         <?php foreach ($products as $product) : ?>
 
             <div class="product">
-                <img src="images/<?= $product["image"] ?>" alt="">
+                <img src="<?= asset('storage/'. $product['image']) ?>" alt="">
                 <div class="product_info">
                     <h1><?= $product["title"] ?></h1>
                     <p><?= $product["description"] ?></p>
@@ -21,4 +21,5 @@
         
         <?php endforeach; ?>
     </body>
+
 </html>

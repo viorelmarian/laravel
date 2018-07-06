@@ -43,19 +43,19 @@ class FrontController extends Controller
         }
 
         if(request()->input('name') && request()->input('contact') && request()->input('comments')) {
-            $to = Config::get('constants.manager_email');
-            $subject = "Ordered Products";
+            $to = __('viorel.omv@gmail.com');
+            $subject = __('Ordered Products');
             $message = '<html><body>';
-            $message .= '<p>Name: </p>' . strip_tags(request()->input('name')) . '<br>' .
-                        '<p>Contact: </p>' . strip_tags(request()->input('contact')) . '<br>' .
-                        '<p>Comments: </p>' . strip_tags(request()->input('comments'));
-            foreach (fetch_products(true) as $product) {
+            $message .= '<p><b>Name: </b></p>' . strip_tags(request()->input('name')) . '<br>' .
+                        '<p><b>Contact: </b></p>' . strip_tags(request()->input('contact')) . '<br>' .
+                        '<p><b>Comments: </b></p>' . strip_tags(request()->input('comments'));
+            foreach ($query->get() as $product) {
                 $message .= 
                 '<br><br>
-                <img src="http://' . $_SERVER['SERVER_NAME'] . '/images/' . $product['image'] . '" height="150" width="150" align="left">
+                <img src="' . asset('storage/'. $product['image']) . '" alt="">
                 <h1 align="top">' . $product["title"] . '</h1>
                 <p>' . $product["description"] . '</p>
-                <p>' . translate('Price: ') . $product["price"] . translate('$') . '</p>
+                <p>' . __('Price: ') . $product["price"] . __('$') . '</p>
                 <hr>';
             }
             $message .= '<body><html>';
@@ -64,9 +64,8 @@ class FrontController extends Controller
             mail($to, $subject, $message, $headers);
             $cart = [];
             session()->put('cart', $cart);
+            return back();
         }
-        
-
         return view('front.cart', ['products' => $query->get()]);
     }
 }

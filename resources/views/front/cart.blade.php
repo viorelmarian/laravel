@@ -14,7 +14,7 @@
         <?php foreach ($products as $product) : ?>
 
             <div class="product">
-                <img src="images/<?= $product["image"] ?>" alt="">
+                <img src="<?= asset('storage/'. $product['image']) ?>" alt="">
                 <div class="product_info">
                     <h1><?= $product["title"] ?></h1>
                     <p><?= $product["description"] ?></p>
@@ -26,7 +26,7 @@
         <?php endforeach; ?>
 
         <form action="cart.php" method="post">
-        {{ csrf_field() }}
+            {{ csrf_field() }}
             <fieldset>
                 <input type="text" name="name" placeholder="<?= __('Name') ?>" autocomplete="off">
                 <input type="text" name="contact" placeholder="<?= __('Contact Information') ?>" autocomplete="off">
