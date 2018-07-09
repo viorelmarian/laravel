@@ -10,7 +10,6 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-
-Route::get('/', 'FrontController@index');
+Route::get('/','FrontController@index');
 Route::get('/cart.php', 'FrontController@cart');
 Route::post('/cart.php', 'FrontController@cart');
