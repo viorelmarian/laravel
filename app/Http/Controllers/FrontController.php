@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Product;
+use App\Mail\orderShipped;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+ 
 
 class FrontController extends Controller
 {
@@ -28,44 +33,56 @@ class FrontController extends Controller
     public function cart() {
         $query = Product::query();
 
-        if (session()->has('cart')) {
-            $query->whereIn('id', session()->get('cart'));
-        }
         
         if (request()->input('id') && request()->input('id') == 'all') { 
             $cart = [];
             session()->put('cart', $cart);
-            return back();
         } elseif (request()->input('id')) {
             $key = array_search(request()->input('id'), session()->get('cart'));
             session()->forget('cart.' . $key);
-            return back();
         }
 
-        if(request()->input('name') && request()->input('contact') && request()->input('comments')) {
-            $to = __('viorel.omv@gmail.com');
-            $subject = __('Ordered Products');
-            $message = '<html><body>';
-            $message .= '<p><b>Name: </b></p>' . strip_tags(request()->input('name')) . '<br>' .
-                        '<p><b>Contact: </b></p>' . strip_tags(request()->input('contact')) . '<br>' .
-                        '<p><b>Comments: </b></p>' . strip_tags(request()->input('comments'));
-            foreach ($query->get() as $product) {
-                $message .= 
-                '<br><br>
-                <img src="' . asset('storage/'. $product['image']) . '" alt="">
-                <h1 align="top">' . $product["title"] . '</h1>
-                <p>' . $product["description"] . '</p>
-                <p>' . __('Price: ') . $product["price"] . __('$') . '</p>
-                <hr>';
-            }
-            $message .= '<body><html>';
-            $headers = "MIME-Version: 1.0" . "\r\n";
-            $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-            mail($to, $subject, $message, $headers);
-            $cart = [];
-            session()->put('cart', $cart);
-            return back();
+        if (session()->has('cart')) {
+            $query->whereIn('id', session()->get('cart'));
         }
-        return view('front.cart', ['products' => $query->get()]);
+
+        $errors = [
+            'name' => '',
+            'contact' =>'',
+            'comments' =>''
+        ];
+        
+        $formInfo = [
+            'name' => '',
+            'contact' =>'',
+            'comments' =>''
+        ];
+        if(null!== request()->input('checkout')) {
+            $formInfo['name'] = strip_tags(request()->input('name'));
+            $formInfo['contact'] = strip_tags(request()->input('contact'));
+            $formInfo['comments'] = strip_tags(request()->input('comments'));
+            if(request()->input('name') && request()->input('contact') && request()->input('comments')) {
+                
+                $manager_email = "viorel.omv@gmail.com";
+                $products = $query->get();
+                Mail::to("viorel.omv@gmail.com")->send(new orderShipped($products, $formInfo));
+                $cart = [];
+                session()->put('cart', $cart);
+                return back();
+            } else {
+
+                if(empty(request()->input('name'))) {
+                    $errors['name'] = "Name is required.";
+                }
+                if(empty(request()->input('contact'))) {
+                    $errors['contact'] = "Contact Information is required.";
+                }
+                if(empty(request()->input('comments'))) {
+                    $errors['comments'] = "Add a comment.";
+                }
+            }
+        }
+        
+        return view('front.cart', ['products' => $query->get(), 'errors' => $errors, 'formInfo' => $formInfo]);
     }
 }
