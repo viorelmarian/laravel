@@ -2,11 +2,11 @@
     <body>
         <div>
         <h2>{{ __("Name:") }}</h2>
-        <h4>{{ $formInfo['name'] }}</h4>
+        <h4>{{ $formInfo->name }}</h4>
         <h2>{{ __("Contact Information:") }}</h2>
-        <h4>{{ $formInfo['contact'] }}</h4>
+        <h4>{{ $formInfo->contact }}</h4>
         <h2>{{ __("Comments:") }}</h2>
-        <h4>{{ $formInfo['comments'] }}</h4>
+        <h4>{{ $formInfo->comments }}</h4>
         </div>
         <?php foreach($products as $product) : ?>
         <div>

@@ -53,15 +53,9 @@ class FrontController extends Controller
                             ->withErrors($formInfo)
                             ->withInput();
             }
-
-            $formInfo = $request->validate([
-                'name' => 'required',
-                'contact' => 'required',
-                'comments' => 'required',
-            ]);
             $query->whereIn('id', session()->get('cart'));
             $products = $query->get();
-            Mail::to(env('MANAGER_EMAIL'))->send(new orderShipped($products, $formInfo));
+            Mail::to(env('MANAGER_EMAIL'))->send(new orderShipped($products, $request));
             $cart = [];
             session()->put('cart', $cart);
             
@@ -81,8 +75,7 @@ class FrontController extends Controller
                 return redirect('/login.php')
                             ->withErrors($credentials)
                             ->withInput();
-            }
-            if (
+            } elseif (
                 request()->input('username') == env('ADMIN_USERNAME') && 
                 request()->input('username') == env('ADMIN_PASSWORD')
             ) {
