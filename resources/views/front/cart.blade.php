@@ -28,12 +28,12 @@
         <form action="cart.php" method="post">
             {{ csrf_field() }}
             <fieldset>
-                <input type="text" name="name" placeholder="<?= __('Name') ?>" autocomplete="off" value="<?= $formInfo['name'] ?>">
-                <p style="color:red"> <?= $errors['name'] ?></p>
-                <input type="text" name="contact" placeholder="<?= __('Contact Information') ?>" autocomplete="off" value="<?= $formInfo['contact'] ?>">
-                <p style="color:red"> <?= $errors['contact'] ?></p>
-                <input type="text" name="comments" placeholder="<?= __('Comments') ?>" value="<?= $formInfo['comments'] ?>" >
-                <p style="color:red"> <?= $errors['comments'] ?></p>
+                <input type="text" name="name" placeholder="<?= __('Name') ?>" autocomplete="off" value="{{ old('name') }}">
+                <p style="color:red"> <?= $errors->first('name') ?></p>
+                <input type="text" name="contact" placeholder="<?= __('Contact Information') ?>" autocomplete="off" value="{{ old('contact') }}">
+                <p style="color:red"> <?= $errors->first('contact') ?></p>
+                <input type="text" name="comments" placeholder="<?= __('Comments') ?>" autocomplete="off" value="{{ old('comments') }}">
+                <p style="color:red"> <?= $errors->first('comments') ?></p>
                 <input type="submit" name="checkout" value="<?= __('Checkout') ?>">
             </fieldset>
         </form>
