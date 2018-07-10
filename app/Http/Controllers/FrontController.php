@@ -52,6 +52,7 @@ class FrontController extends Controller
                 return redirect('/cart.php')
                             ->withErrors($formInfo)
                             ->withInput();
+                exit();
             }
             $query->whereIn('id', session()->get('cart'));
             $products = $query->get();
@@ -75,6 +76,7 @@ class FrontController extends Controller
                 return redirect('/login.php')
                             ->withErrors($credentials)
                             ->withInput();
+                exit();
             } elseif (
                 request()->input('username') == env('ADMIN_USERNAME') && 
                 request()->input('username') == env('ADMIN_PASSWORD')

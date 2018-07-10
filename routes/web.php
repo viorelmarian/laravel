@@ -18,3 +18,5 @@ Route::post('/login.php', 'FrontController@login');
 Route::get('/cart.php', 'FrontController@cart');
 Route::post('/cart.php', 'FrontController@cart');
 Route::get('/products.php', 'BackController@products')->middleware('authentication');
+Route::get('/product.php', 'BackController@product')->middleware('authentication');
+Route::post('/product.php', 'BackController@product')->middleware('authentication');
