@@ -3,7 +3,7 @@
         <link rel="stylesheet" href="css/index.css">
     </head>
     <body>
-        <a href="cart.php">
+        <a href="cart">
             <button>{{ __('Go to cart') }}</button>
         </a>
         
@@ -15,7 +15,7 @@
                     <h1><?= $product["title"] ?></h1>
                     <p><?= $product["description"] ?></p>
                     <p><?= __('Price: ') ?><?= $product["price"] ?> <?= __('$') ?></p>
-                    <a href="index.php?id=<?= $product["id"] ?>"><?= __('Add to cart') ?></a>
+                    <a href="index?id=<?= $product["id"] ?>"><?= __('Add to cart') ?></a>
                 </div>
             </div>
         

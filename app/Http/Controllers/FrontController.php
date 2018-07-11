@@ -25,6 +25,10 @@ class FrontController extends Controller
 
         $query->whereNotIn('id', $cart);
 
+        if (request()->ajax()) {
+            return $query->get();
+        }
+
         return view('front.index', ['products' => $query->get()]);
     }
 
@@ -49,7 +53,7 @@ class FrontController extends Controller
             ]);
     
             if ($formInfo->fails()) {
-                return redirect('/cart.php')
+                return redirect('/cart')
                             ->withErrors($formInfo)
                             ->withInput();
                 exit();
@@ -62,6 +66,11 @@ class FrontController extends Controller
             
         }
         $query->whereIn('id', session()->has('cart') ? session()->get('cart') : []);
+
+        if (request()->ajax()) {
+            return $query->get();
+        }
+
         return view('front.cart', ['products' => $query->get()]);
     }
 
@@ -73,7 +82,7 @@ class FrontController extends Controller
                 'password' => 'required'
             ]);
             if ($credentials->fails()) {
-                return redirect('/login.php')
+                return redirect('/login')
                             ->withErrors($credentials)
                             ->withInput();
                 exit();
@@ -82,7 +91,7 @@ class FrontController extends Controller
                 request()->input('username') == env('ADMIN_PASSWORD')
             ) {
                 session()->put('logged','ok');
-                return redirect('/products.php');
+                return redirect('/products');
                 exit();
             }
         } 

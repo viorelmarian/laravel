@@ -3,7 +3,7 @@
         <link rel="stylesheet" href="css/product.css">
     </head>
     <body>
-        <form action="product.php<?= request()->has('id') ? '?id=' . request()->get('id') : '' ?>" method="post" enctype="multipart/form-data">
+        <form action="product<?= request()->has('id') ? '?id=' . request()->get('id') : '' ?>" method="post" enctype="multipart/form-data">
             {{ csrf_field() }}
             <fieldset>
                 <input type="text" name="title"  autocomplete="off" placeholder="Title" value="<?= old('title', $productInfo['title']) ?>">

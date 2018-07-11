@@ -3,7 +3,7 @@
     </head>
     <body>
         <div>
-            <form action="login.php" method="post">
+            <form action="login" method="post">
             {{ csrf_field() }}
                 <fieldset>
                     <input type="text" name="username" placeholder="<?= __('Username') ?>" autocomplete="off" value="{{ old('username') }}">

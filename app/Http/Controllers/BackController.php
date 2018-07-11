@@ -11,7 +11,7 @@ class BackController extends Controller
 {
     public function logout() {
             session()->forget('logged');
-            return redirect('/login.php');
+            return redirect('/login');
     }
 
     public function products() {
@@ -47,7 +47,7 @@ class BackController extends Controller
             ]);
 
             if ($productInfo->fails()) {
-                return redirect('/product.php' . (request()->has('id') ? '?id=' . request()->input('id') : ''))
+                return redirect('/product' . (request()->has('id') ? '?id=' . request()->input('id') : ''))
                     ->withErrors($productInfo)
                     ->withInput();
             }
@@ -73,7 +73,7 @@ class BackController extends Controller
 
             $product->save();
 
-            return redirect('/products.php');
+            return redirect('/products');
         }
 
         return view('back.product', ['productInfo' => $productInfo]);

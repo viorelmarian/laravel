@@ -13,11 +13,15 @@
 
 
 Route::get('/','FrontController@index');
-Route::get('/login.php', 'FrontController@login');
-Route::get('/logout.php', 'BackController@logout');
-Route::post('/login.php', 'FrontController@login');
-Route::get('/cart.php', 'FrontController@cart');
-Route::post('/cart.php', 'FrontController@cart');
-Route::get('/products.php', 'BackController@products')->middleware('authentication');
-Route::get('/product.php', 'BackController@product')->middleware('authentication');
-Route::post('/product.php', 'BackController@product')->middleware('authentication');
+Route::get('/index','FrontController@index');
+Route::get('/login', 'FrontController@login');
+Route::get('/logout', 'BackController@logout');
+Route::post('/login', 'FrontController@login');
+Route::get('/cart', 'FrontController@cart');
+Route::post('/cart', 'FrontController@cart');
+Route::get('/products', 'BackController@products')->middleware('authentication');
+Route::get('/product', 'BackController@product')->middleware('authentication');
+Route::post('/product', 'BackController@product')->middleware('authentication');
+Route::get('/spa', function() {
+    return view('spa');
+});

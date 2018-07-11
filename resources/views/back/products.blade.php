@@ -3,10 +3,10 @@
         <link rel="stylesheet" href="css/index.css">
     </head>
     <body>
-        <a href="product.php">
+        <a href="product">
             <button><?= __('Add') ?></button>
         </a>
-        <a href="logout.php">
+        <a href="logout">
             <button><?= __('Logout') ?></button>
         </a>
         
@@ -18,8 +18,8 @@
                     <h1><?= $product["title"] ?></h1>
                     <p><?= $product["description"] ?></p>
                     <p><?= __('Price: ') ?><?= $product["price"] ?> <?= __('$') ?></p>
-                    <a href="product.php?id=<?= $product["id"] ?>"><?= __('Edit') ?></a>
-                    <a href="products.php?id=<?= $product["id"] ?>"><?= __('Delete') ?></a>
+                    <a href="product?id=<?= $product["id"] ?>"><?= __('Edit') ?></a>
+                    <a href="products?id=<?= $product["id"] ?>"><?= __('Delete') ?></a>
                 </div>
             </div>
         

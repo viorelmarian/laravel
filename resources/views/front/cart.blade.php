@@ -4,10 +4,10 @@
         <link rel="stylesheet" href="css/cart.css">
     </head>
     <body>
-        <a href="index.php">
+        <a href="index">
             <button><?= __('Go to index') ?></button>
         </a>
-        <a href="cart.php?id=all">
+        <a href="cart?id=all">
             <button><?= __('Remove all') ?></button>
         </a>
         
@@ -19,13 +19,13 @@
                     <h1><?= $product["title"] ?></h1>
                     <p><?= $product["description"] ?></p>
                     <p><?= __('Price: ') ?><?= $product["price"] ?> <?= __('$') ?></p>
-                    <a href="cart.php?id=<?= $product["id"] ?>"><?= __('Remove') ?></a>
+                    <a href="cart?id=<?= $product["id"] ?>"><?= __('Remove') ?></a>
                 </div>
             </div>
         
         <?php endforeach; ?>
 
-        <form action="cart.php" method="post">
+        <form action="cart" method="post">
             {{ csrf_field() }}
             <fieldset>
                 <input type="text" name="name" placeholder="<?= __('Name') ?>" autocomplete="off" value="{{ old('name') }}">
