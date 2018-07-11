@@ -13,13 +13,16 @@ class BackController extends Controller
             session()->forget('logged');
             return redirect('/login.php');
     }
+
     public function products() {
         $query = Product::query();
 
         if (null !== request()->input('id')) {
-            $oldImage = DB::select ('select image from products where id= ?', [request()->input('id')])[0]->image;
-            $deleted = DB::delete('delete from products where id= ?', [request()->input('id')]);
-            unlink('storage/' . $oldImage);
+            $product = Product::find(request()->input('id'));
+            if ($product) {
+                unlink('storage/' . $product->image);
+                $product->delete();
+            }
         }
         $products = $query->get();
         return view('back.products', ['products' => $products]);
@@ -28,16 +31,13 @@ class BackController extends Controller
     public function product(Request $request) {
         $query = Product::query();
         if (request()->has('id')) {
-            $product = DB::select('select * from products where id = ?', [request()->input('id')]);
-            $productInfo = (array)$product[0];
+            $product = Product::find(request()->input('id'));
         } else {
-            $productInfo = [
-                'title' => '',
-                'description' => '',
-                'price' => '',
-                'image' => '',
-            ];
+            $product = new Product();
         }
+
+        $productInfo = $product->toArray();
+
         if (null !== request()->input('save')) {
             $productInfo = Validator::make(request()->all(), [
                 'title' => 'required',
@@ -45,31 +45,37 @@ class BackController extends Controller
                 'price' => 'required',
                 'image' => (!request()->has('id') ? 'required|' : '') . 'image'
             ]);
+
             if ($productInfo->fails()) {
                 return redirect('/product.php' . (request()->has('id') ? '?id=' . request()->input('id') : ''))
-                            ->withErrors($productInfo)
-                            ->withInput();
+                    ->withErrors($productInfo)
+                    ->withInput();
             }
-            if (request()->has('id')) {
-                $oldImage = DB::select ('select image from products where id= ?', [request()->input('id')])[0]->image;
+
+            if ($product->getKey()) {
+                $oldImage = $product->image;
                 if (request()->file('image')) {
                     $newImage = basename(request()->file('image')->store('public'));
                     unlink('storage/' . $oldImage);
                 } else {
                     $newImage = $oldImage;
                 }
-                $affected = DB::update('UPDATE `products` SET `title`=?,`description`=?,`price`=?,`image`=? WHERE `id`=?',
-                                        [request()->title, request()->description, request()->price, $newImage, request()->id]);
-                return redirect('/products.php');
             } else {
                 if (request()->file('image')) { 
                     $newImage = basename(request()->file('image')->store('public'));
                 }
-                $inserted = DB::insert('INSERT INTO `products`(`title`, `description`, `price`,`image`) VALUES (?, ?, ?, ?)',
-                                        [request()->title, request()->description, request()->price, $newImage]);
-                return redirect('/products.php');
             }
+
+            $product->title = request()->input('title');
+            $product->description = request()->input('description');
+            $product->price = request()->input('price');
+            $product->image = $newImage;
+
+            $product->save();
+
+            return redirect('/products.php');
         }
+
         return view('back.product', ['productInfo' => $productInfo]);
     }
 }
