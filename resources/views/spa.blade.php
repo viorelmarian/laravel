@@ -22,10 +22,10 @@
             *     "price": 2
             * }]
             */
-            function renderList(products) {
+            function renderList(products, source) {
                 html = [
                     '<tr>',
-                        '<th>Title</th>',
+                        '<th><?= __('Title') ?></th>',
                         '<th>Description</th>',
                         '<th>Price</th>',
                     '</tr>'
@@ -36,13 +36,37 @@
                         '<tr>',
                             '<td>' + product.title + '</td>',                       
                             '<td>' + product.description + '</td>',                       
-                            '<td>' + product.price + '</td>',                       
+                            '<td>' + product.price + '</td>',
+                            '<td>' + (
+                                source == 'index' 
+                                ? '<a class="add-to-cart" data-id="' + product.id + '"><?= __('Add') ?></a>' 
+                                : '<a class="remove-from-cart" data-id="' + product.id + '"><?= __('Remove') ?></a>') + '</td>',
                         '</tr>'                        
                     ].join('');
                 });
                 
                 return html;
             }
+
+            $(document).on('click', '.add-to-cart', function() {
+                $.ajax('/index', {
+                    dataType: 'json',
+                    data: {id: $(this).attr('data-id')},
+                    success: function (response) {
+                        $('.index .list').html(renderList(response, 'index'));
+                    }
+                });
+            });
+            
+            $(document).on('click', '.remove-from-cart', function() {
+                $.ajax('/cart', {
+                    dataType: 'json',
+                    data: {id: $(this).attr('data-id')},
+                    success: function (response) {
+                        $('.cart .list').html(renderList(response, 'cart'));
+                    }
+                });
+            });
             
             /**
             * URL hash change handler
@@ -60,7 +84,7 @@
                             dataType: 'json',
                             success: function (response) {
                                 // Render the products in the cart list
-                                $('.cart .list').html(renderList(response));
+                                $('.cart .list').html(renderList(response, 'cart'));
                             }
                         });
                         break;
@@ -73,7 +97,7 @@
                             dataType: 'json',
                             success: function (response) {
                                 // Render the products in the index list
-                                $('.index .list').html(renderList(response));
+                                $('.index .list').html(renderList(response, 'index'));
                             }
                         }); 
                         break;
