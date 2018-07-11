@@ -6,27 +6,21 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Product;
 use Validator;
-use Storage;
 
 class BackController extends Controller
 {
+    public function logout() {
+            session()->forget('logged');
+            return redirect('/login.php');
+    }
     public function products() {
         $query = Product::query();
 
-        if (null !== request()->input('logout')) {
-            session()->forget('logged');
-            return redirect('/login.php');
-            exit();
-        }
-
         if (null !== request()->input('id')) {
-            $imgPath = DB::select ('select image from products where id= ?', [request()->input('id')]);
+            $oldImage = DB::select ('select image from products where id= ?', [request()->input('id')])[0]->image;
             $deleted = DB::delete('delete from products where id= ?', [request()->input('id')]);
-            Storage::delete($imgPath[0]->image);
+            unlink('storage/' . $oldImage);
         }
-
-
-
         $products = $query->get();
         return view('back.products', ['products' => $products]);
     }
@@ -34,13 +28,8 @@ class BackController extends Controller
     public function product(Request $request) {
         $query = Product::query();
         if (request()->has('id')) {
-            $product = DB::select('select * from products where id = ?', [request()->get('id')]);
-            $productInfo = [
-                'title' => $product[0]->title,
-                'description' => $product[0]->description,
-                'price' => $product[0]->price,
-                'image' => $product[0]->image,
-            ];
+            $product = DB::select('select * from products where id = ?', [request()->input('id')]);
+            $productInfo = (array)$product[0];
         } else {
             $productInfo = [
                 'title' => '',
@@ -50,17 +39,34 @@ class BackController extends Controller
             ];
         }
         if (null !== request()->input('save')) {
-            if(request()->has('id')) {
-                $path = $request->file('image')->store('public');
-                $path = explode('/',$path);
+            $productInfo = Validator::make(request()->all(), [
+                'title' => 'required',
+                'description' => 'required',
+                'price' => 'required',
+                'image' => (!request()->has('id') ? 'required|' : '') . 'image'
+            ]);
+            if ($productInfo->fails()) {
+                return redirect('/product.php' . (request()->has('id') ? '?id=' . request()->input('id') : ''))
+                            ->withErrors($productInfo)
+                            ->withInput();
+            }
+            if (request()->has('id')) {
+                $oldImage = DB::select ('select image from products where id= ?', [request()->input('id')])[0]->image;
+                if (request()->file('image')) {
+                    $newImage = basename(request()->file('image')->store('public'));
+                    unlink('storage/' . $oldImage);
+                } else {
+                    $newImage = $oldImage;
+                }
                 $affected = DB::update('UPDATE `products` SET `title`=?,`description`=?,`price`=?,`image`=? WHERE `id`=?',
-                                        [$request->title, $request->description, $request->price, $path[1], $request->id]);
+                                        [request()->title, request()->description, request()->price, $newImage, request()->id]);
                 return redirect('/products.php');
             } else {
-                $path = $request->file('image')->store('public');
-                $path = explode('/',$path);
+                if (request()->file('image')) { 
+                    $newImage = basename(request()->file('image')->store('public'));
+                }
                 $inserted = DB::insert('INSERT INTO `products`(`title`, `description`, `price`,`image`) VALUES (?, ?, ?, ?)',
-                                        [$request->title, $request->description, $request->price, $path[1]]);
+                                        [request()->title, request()->description, request()->price, $newImage]);
                 return redirect('/products.php');
             }
         }

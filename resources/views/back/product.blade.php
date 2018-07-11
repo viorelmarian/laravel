@@ -6,11 +6,11 @@
         <form action="product.php<?= request()->has('id') ? '?id=' . request()->get('id') : '' ?>" method="post" enctype="multipart/form-data">
             {{ csrf_field() }}
             <fieldset>
-                <input type="text" name="title"  autocomplete="off" placeholder="Title" value="{{ $productInfo['title'] }}">
+                <input type="text" name="title"  autocomplete="off" placeholder="Title" value="<?= old('title', $productInfo['title']) ?>">
                 <p style="color:red"><?= $errors->first('title') ?></p>
-                <input type="text" name="description"  autocomplete="off" placeholder="Description" value="{{ $productInfo['description'] }}">
+                <input type="text" name="description"  autocomplete="off" placeholder="Description" value="<?= old('description', $productInfo['description']) ?>">
                 <p style="color:red"><?= $errors->first('description') ?></p>
-                <input type="text" name="price"  autocomplete="off" placeholder="Price" value="{{ $productInfo['price'] }}">
+                <input type="text" name="price"  autocomplete="off" placeholder="Price" value="<?= old('price', $productInfo['price']) ?>">
                 <p style="color:red"><?= $errors->first('price') ?></p>
                 <input type="file" name="image" style="align:left;">
                 <br>

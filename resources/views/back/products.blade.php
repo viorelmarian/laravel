@@ -6,7 +6,7 @@
         <a href="product.php">
             <button><?= __('Add') ?></button>
         </a>
-        <a href="products.php?logout=1">
+        <a href="logout.php">
             <button><?= __('Logout') ?></button>
         </a>
         

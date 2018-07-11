@@ -14,6 +14,7 @@
 
 Route::get('/','FrontController@index');
 Route::get('/login.php', 'FrontController@login');
+Route::get('/logout.php', 'BackController@logout');
 Route::post('/login.php', 'FrontController@login');
 Route::get('/cart.php', 'FrontController@cart');
 Route::post('/cart.php', 'FrontController@cart');
