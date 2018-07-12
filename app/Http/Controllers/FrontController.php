@@ -8,6 +8,7 @@ use App\Mail\orderShipped;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Input;
 use Validator;
 
 class FrontController extends Controller
@@ -46,6 +47,10 @@ class FrontController extends Controller
         }
 
         if(null!== request()->input('checkout')) {
+
+            $query->whereIn('id', session()->get('cart'));
+            $products = $query->get();
+
             $formInfo = Validator::make($request->all(), [
                 'name' => 'required',
                 'contact' => 'required',
@@ -53,20 +58,28 @@ class FrontController extends Controller
             ]);
     
             if ($formInfo->fails()) {
+
+                if (request()->ajax()) {
+                    $response = [
+                        'products' => $query->get(),
+                        'errors' => $formInfo->errors(),
+                        'old' => Input::all()
+                    ];
+                    return json_encode($response);
+                }
+
                 return redirect('/cart')
                             ->withErrors($formInfo)
                             ->withInput();
                 exit();
             }
-            $query->whereIn('id', session()->get('cart'));
-            $products = $query->get();
             Mail::to(env('MANAGER_EMAIL'))->send(new orderShipped($products, $request));
             $cart = [];
             session()->put('cart', $cart);
             
         }
         $query->whereIn('id', session()->has('cart') ? session()->get('cart') : []);
-
+        
         if (request()->ajax()) {
             return $query->get();
         }
@@ -82,6 +95,14 @@ class FrontController extends Controller
                 'password' => 'required'
             ]);
             if ($credentials->fails()) {
+
+                if (request()->ajax()) {
+                    $response = [
+                        'errors' => $credentials->errors(),
+                        'old' => Input::all()
+                    ];
+                    return json_encode($response);
+                }
                 return redirect('/login')
                             ->withErrors($credentials)
                             ->withInput();
@@ -91,10 +112,15 @@ class FrontController extends Controller
                 request()->input('username') == env('ADMIN_PASSWORD')
             ) {
                 session()->put('logged','ok');
+                if (request()->ajax()) {
+                    return json_encode('ok');
+                }
                 return redirect('/products');
-                exit();
             }
         } 
+        if (request()->ajax()) {
+            return json_encode('ok');
+        }
         return view('front.login');
     }
 }

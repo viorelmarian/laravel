@@ -14,8 +14,8 @@
 
 Route::get('/','FrontController@index');
 Route::get('/index','FrontController@index');
-Route::get('/login', 'FrontController@login');
 Route::get('/logout', 'BackController@logout');
+Route::get('/login', 'FrontController@login');
 Route::post('/login', 'FrontController@login');
 Route::get('/cart', 'FrontController@cart');
 Route::post('/cart', 'FrontController@cart');

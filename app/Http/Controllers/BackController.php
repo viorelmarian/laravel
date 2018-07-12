@@ -25,6 +25,9 @@ class BackController extends Controller
             }
         }
         $products = $query->get();
+        if (request()->ajax()) {
+            return $query->get();
+        }
         return view('back.products', ['products' => $products]);
     }
 
@@ -37,7 +40,6 @@ class BackController extends Controller
         }
 
         $productInfo = $product->toArray();
-
         if (null !== request()->input('save')) {
             $productInfo = Validator::make(request()->all(), [
                 'title' => 'required',
@@ -76,6 +78,9 @@ class BackController extends Controller
             return redirect('/products');
         }
 
+        if (request()->ajax()) {
+            return $query->get();
+        }
         return view('back.product', ['productInfo' => $productInfo]);
     }
 }

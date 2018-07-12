@@ -1,5 +1,5 @@
 .product {
-    border: 5px solid black;
+    border: 0.2vw solid black;
     width: 30%;
     border-radius: 10px;
     display: flex;
@@ -7,10 +7,11 @@
     background-color: bisque;
     margin-left: 35%;
     margin-top: 5%;
+    font-size: 1vw;
 }
 img {
-    max-width: 150px;
-    max-height: 150px;
+    width: 10vw;
+    height: 10vw;
     border: 1px solid black;
     border-radius: 5px;
     margin: 5%;
@@ -21,4 +22,9 @@ img {
 #add_product {
     height: 4.8%;
     width: 100%;
+}
+button {
+    width: 10vw;
+    height:2vw;
+    font-size: 1vw;
 }
