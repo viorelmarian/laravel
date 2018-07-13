@@ -38,8 +38,10 @@
                                 ? '<a class="add-to-cart" data-id="' + product.id + '"><button><?= __('Add') ?></button></a>' : '', 
                                 source == 'cart' 
                                 ? '<a class="remove-from-cart" data-id="' + product.id + '"><button><?= __('Remove') ?></button></a>' : '',
-                                source == 'products' ?
-                                '<a class="edit-product" data-id="' + product.id + '"><button><?= __('Edit') ?></button></a>': '',
+                                source == 'products' 
+                                ? '<a class="edit-product" data-id="' + product.id + '"><button><?= __('Edit') ?></button></a>' 
+                                + '<a class="delete-product" data-id="' + product.id + '"><button><?= __('Delete') ?></button></a>'
+                                : '',
                             '</div>',
                         '</div>'
                     ].join('');
@@ -64,6 +66,71 @@
                     success: function (response) {
                         $('.cart .list').html(renderList(response.products, 'cart'));
                     }
+                });
+            });
+
+            $(document).on('click', '.delete-product', function() {
+                $.ajax('/products', {
+                    dataType: 'json',
+                    data: {id: $(this).attr('data-id')},
+                    success: function (response) {
+                        $('.products .list').html(renderList(response, 'products'));
+                    }
+                });
+            });
+
+            $(document).on('click', '.edit-product', function() {
+                $.ajax('/cart', {
+                    dataType: 'json',
+                    data: {id: $(this).attr('data-id')},
+                    success: function (response) {
+                        $('.cart .list').html(renderList(response.products, 'cart'));
+                    }
+                });
+            });
+            
+
+            $(document).on('click', '#save', function() {
+                console.log();
+                $.ajax('/product', {
+                    dataType: 'json',
+                    data: {
+                        title: document.getElementById('title').value,
+                        description: document.getElementById('description').value,
+                        price: document.getElementById('price').value,
+                        image: document.getElementById('image').value,
+                        save: 'save'
+                    },
+                    success: function (response) {
+                        console.log(response);
+                        if ('title' in response.errors) {
+                            document.getElementById('title-err').innerHTML = response.errors.title;
+                        } else {
+                            document.getElementById('title-err').innerHTML = '';
+                        }
+                        if ('description' in response.errors) {
+                            document.getElementById('description-err').innerHTML = response.errors.description;
+                        } else {
+                            document.getElementById('description-err').innerHTML = '';
+                        }
+                        if ('price' in response.errors) {
+                            document.getElementById('price-err').innerHTML = response.errors.price;
+                        } else {
+                            document.getElementById('price-err').innerHTML = '';
+                        }
+                        if ('image' in response.errors) {
+                            document.getElementById('image-err').innerHTML = response.errors.image;
+                        } else {
+                            document.getElementById('image-err').innerHTML = '';
+                        }
+                    }
+                });
+            });
+
+            $(document).on('click', '#logout', function() {
+                $.ajax('/logout', {
+                    dataType: 'json',
+                    data: 'logout'
                 });
             });
 
@@ -116,7 +183,6 @@
                         login: 'login'
                     },
                     success: function (response) {
-                        console.log(response);
                         if ('username' in response.errors) {
                             document.getElementById('username-err').innerHTML = response.errors.username;
                         } else {
@@ -161,29 +227,39 @@
                         $.ajax('/cart', {
                             dataType: 'json',
                             success: function (response) {
-                                console.log(response);
                                 // Render the products in the cart list
                                 $('.cart .list').html(renderList(response.products, 'cart'));
                             }
                         });
                         break;
+
                     case '#login':
                         // Show the login page
                         $('.login').show();
                         break;
+
                     case '#products':
-                        // Show the products page
-                        $('.products').show();
                         // Load the products from the server
                         $.ajax('/products', {
                             dataType: 'json',
                             success: function (response) {
-                                console.log(response);
                                 // Render the products 
-                                $('.products .list').html(renderList(response.products, 'products'));
+                                console.log(response.login);
+                                if (response.login == 'denied') {
+                                    window.location.hash = '#login';
+                                } else {
+                                    $('.products').show();
+                                    $('.products .list').html(renderList(response, 'products'));
+                                }
+                                
                             }
                         });
                         break;
+                    case '#product':
+
+                        $('.product').show();
+                        break;
+                        
                     
                     default:
                         // If all else fails, always default to index
@@ -209,7 +285,7 @@
         <!-- The index page -->
         <div class="page index">
             <!-- A link to go to the cart by changing the hash -->
-            <a href="#cart" class="button"><button><?= __('Go to cart') ?></button></a>
+            <a href="#cart"><button class="buttons"><?= __('Go to cart') ?></button></a>
 
             <!-- The index element where the products list is rendered -->
             <div class="list"></div>
@@ -218,8 +294,8 @@
         <!-- The cart page -->
         <div class="page cart">
             <!-- A link to go to the index by changing the hash -->
-            <a href="#" class="button"><button><?= __('Go to index') ?></button></a>
-            <a href="#cart" data-id="all" class="remove-all"><button><?= __('Remove all') ?></button></a>
+            <a href="#"><button class="buttons"><?= __('Go to index') ?></button></a>
+            <a href="#cart" data-id="all" class="remove-all"><button class="buttons"><?= __('Remove all') ?></button></a>
 
             <!-- The cart element where the products list is rendered -->
             <div class="list"></div>
@@ -251,11 +327,29 @@
         <!-- The products page -->
         <div class="page products">
         
-            <a href="#product" class="button"><button><?= __('Add') ?></button></a>
-            <a href="#login" class="button"><button><?= __('Logout') ?></button></a>
+            <a id="add-product" href="#product"><button class="buttons"><?= __('Add') ?></button></a>
+            <a id="logout" href="#login"><button class="buttons"><?= __('Logout') ?></button></a>
 
             <!-- The products element where the products list is rendered -->
             <div class="list"></div>
+        </div>
+
+        <!-- The product page -->
+        <div class="page product" style="width:40%;margin-left:30%">
+            <div style="margin:5%">
+                <img src="" alt="image" width="100" height="100">
+            </div>
+            <fieldset style="margin:6%;background-color: #efb2d1">
+                <input type="text" id="title" autocomplete="off" placeholder="Title">
+                <p id="title-err" style="color:red"></p>
+                <input type="text" id="description" autocomplete="off" placeholder="Description">
+                <p id="description-err" style="color:red"></p>
+                <input type="text" id="price" autocomplete="off" placeholder="Price">
+                <p id="price-err" style="color:red"></p>
+                <input type="file" name="image" id="image" style="margin:8%;">
+                <p id="image-err" style="color:red"></p>
+                <button type="button" id="save" style="margin-left:10%;width:80%" value=""><?= __('Save') ?></button>
+            </fieldset>
         </div>
         
     </body>

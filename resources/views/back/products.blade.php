@@ -1,13 +1,14 @@
 <html>
     <head>
         <link rel="stylesheet" href="css/index.css">
+        <link rel="stylesheet" href="css/cart.css">
     </head>
     <body>
         <a href="product">
-            <button><?= __('Add') ?></button>
+            <button class="buttons"><?= __('Add') ?></button>
         </a>
         <a href="logout">
-            <button><?= __('Logout') ?></button>
+            <button class="buttons"><?= __('Logout') ?></button>
         </a>
         
         <?php foreach ($products as $product) : ?>
@@ -17,9 +18,9 @@
                 <div class="product_info">
                     <h1><?= $product["title"] ?></h1>
                     <p><?= $product["description"] ?></p>
-                    <p><?= __('Price: ') ?><?= $product["price"] ?> <?= __('$') ?></p>
-                    <a href="product?id=<?= $product["id"] ?>"><?= __('Edit') ?></a>
-                    <a href="products?id=<?= $product["id"] ?>"><?= __('Delete') ?></a>
+                    <p><?= __('Price: ') ?><?= $product["price"] ?><?= __('$') ?></p>
+                    <a href="product?id=<?= $product["id"] ?>"><button><?= __('Edit') ?></button></a>
+                    <a href="products?id=<?= $product["id"] ?>"><button><?= __('Delete') ?></button></a>
                 </div>
             </div>
         

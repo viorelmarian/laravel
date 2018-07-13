@@ -1,10 +1,11 @@
 <html>
     <head>
         <link rel="stylesheet" href="css/index.css">
+        <link rel="stylesheet" href="css/cart.css">
     </head>
     <body>
         <a href="cart">
-            <button>{{ __('Go to cart') }}</button>
+            <button class="buttons">{{ __('Go to cart') }}</button>
         </a>
         
         <?php foreach ($products as $product) : ?>
@@ -15,7 +16,7 @@
                     <h1><?= $product["title"] ?></h1>
                     <p><?= $product["description"] ?></p>
                     <p><?= __('Price: ') ?><?= $product["price"] ?> <?= __('$') ?></p>
-                    <a href="index?id=<?= $product["id"] ?>"><?= __('Add to cart') ?></a>
+                    <a href="index?id=<?= $product["id"] ?>"><button><?= __('Add') ?></button></a>
                 </div>
             </div>
         

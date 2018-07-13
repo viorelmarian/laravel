@@ -11,9 +11,6 @@ class BackController extends Controller
 {
     public function logout() {
             session()->forget('logged');
-            if (request()->ajax()) {
-                return json_encode('logged-out');
-            }
             return redirect('/login');
     }
 
@@ -47,11 +44,17 @@ class BackController extends Controller
             $productInfo = Validator::make(request()->all(), [
                 'title' => 'required',
                 'description' => 'required',
-                'price' => 'required',
+                'price' => 'required|numeric',
                 'image' => (!request()->has('id') ? 'required|' : '') . 'image'
             ]);
 
             if ($productInfo->fails()) {
+                if (request()->ajax()) {
+                    $response = [
+                        'errors' => $productInfo->errors()
+                    ];
+                    return json_encode($response);
+                }
                 return redirect('/product' . (request()->has('id') ? '?id=' . request()->input('id') : ''))
                     ->withErrors($productInfo)
                     ->withInput();
@@ -77,13 +80,16 @@ class BackController extends Controller
             $product->image = $newImage;
 
             $product->save();
-
+            if (request()->ajax()) {
+                $result = [
+                    'errors' => []
+                ];
+                return json_encode($result);
+            }
             return redirect('/products');
         }
 
-        if (request()->ajax()) {
-            return $query->get();
-        }
+        
         return view('back.product', ['productInfo' => $productInfo]);
     }
 }

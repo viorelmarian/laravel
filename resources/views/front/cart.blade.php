@@ -5,10 +5,10 @@
     </head>
     <body>
         <a href="index">
-            <button><?= __('Go to index') ?></button>
+            <button  class="buttons"><?= __('Go to index') ?></button>
         </a>
         <a href="cart?id=all">
-            <button><?= __('Remove all') ?></button>
+            <button  class="buttons"><?= __('Remove all') ?></button>
         </a>
         
         <?php foreach ($products as $product) : ?>
@@ -19,7 +19,7 @@
                     <h1><?= $product["title"] ?></h1>
                     <p><?= $product["description"] ?></p>
                     <p><?= __('Price: ') ?><?= $product["price"] ?> <?= __('$') ?></p>
-                    <a href="cart?id=<?= $product["id"] ?>"><?= __('Remove') ?></a>
+                    <a href="cart?id=<?= $product["id"] ?>"><button><?= __('Remove') ?></button></a>
                 </div>
             </div>
         

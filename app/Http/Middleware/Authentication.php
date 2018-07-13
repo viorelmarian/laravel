@@ -16,7 +16,7 @@ class Authentication
     public function handle($request, Closure $next)
     {
         if (!session()->has('logged')) {
-            header('Location: /login.php');
+            header('Location: /login');
             exit();
         }
         return $next($request);

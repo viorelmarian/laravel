@@ -115,7 +115,6 @@ class FrontController extends Controller
                 session()->put('logged','ok');
                 if (request()->ajax()) {
                     $response = [
-                        
                         'login' => "success",
                         'errors' => [],
                     ];
@@ -134,7 +133,6 @@ class FrontController extends Controller
         } 
         if (request()->ajax()) {
             $response = [
-                'errors' => 'no error',
                 'login' => 'denied'
             ];
             return json_encode($response);
