@@ -62,8 +62,7 @@ class FrontController extends Controller
                 if (request()->ajax()) {
                     $response = [
                         'products' => $query->get(),
-                        'errors' => $formInfo->errors(),
-                        'old' => Input::all()
+                        'errors' => $formInfo->errors()
                     ];
                     return json_encode($response);
                 }
@@ -81,7 +80,11 @@ class FrontController extends Controller
         $query->whereIn('id', session()->has('cart') ? session()->get('cart') : []);
         
         if (request()->ajax()) {
-            return $query->get();
+            $response = [
+                'products' => $query->get(),
+                'errors' => []
+            ];
+            return json_encode($response);
         }
 
         return view('front.cart', ['products' => $query->get()]);
@@ -99,27 +102,42 @@ class FrontController extends Controller
                 if (request()->ajax()) {
                     $response = [
                         'errors' => $credentials->errors(),
-                        'old' => Input::all()
                     ];
                     return json_encode($response);
                 }
                 return redirect('/login')
                             ->withErrors($credentials)
                             ->withInput();
-                exit();
             } elseif (
                 request()->input('username') == env('ADMIN_USERNAME') && 
-                request()->input('username') == env('ADMIN_PASSWORD')
+                request()->input('password') == env('ADMIN_PASSWORD')
             ) {
                 session()->put('logged','ok');
                 if (request()->ajax()) {
-                    return json_encode('ok');
+                    $response = [
+                        
+                        'login' => "success",
+                        'errors' => [],
+                    ];
+                    return json_encode($response);
                 }
                 return redirect('/products');
+            } elseif (request()->ajax()) {
+                $response = [
+                    'errors' => [
+                        'credentials' => "Wrong credentials."
+                    ],
+                    
+                ];
+                return json_encode($response);
             }
         } 
         if (request()->ajax()) {
-            return json_encode('ok');
+            $response = [
+                'errors' => 'no error',
+                'login' => 'denied'
+            ];
+            return json_encode($response);
         }
         return view('front.login');
     }

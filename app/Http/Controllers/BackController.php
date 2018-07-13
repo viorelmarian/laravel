@@ -11,6 +11,9 @@ class BackController extends Controller
 {
     public function logout() {
             session()->forget('logged');
+            if (request()->ajax()) {
+                return json_encode('logged-out');
+            }
             return redirect('/login');
     }
 
@@ -26,7 +29,7 @@ class BackController extends Controller
         }
         $products = $query->get();
         if (request()->ajax()) {
-            return $query->get();
+            return $products;
         }
         return view('back.products', ['products' => $products]);
     }

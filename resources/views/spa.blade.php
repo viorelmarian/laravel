@@ -23,71 +23,27 @@
             *     "price": 2
             * }]
             */
-            function renderList(products, source, errors, old) {
+            function renderList(products, source) {
                 
-                if (source != 'login') {
-                    html = [].join('');
-                    $.each(products, function (key, product) {
-                        html += [
-                            '<div class="product">',
-                                '<img src="/storage/'+ product.image + '" alt="">',
-                                '<div class="product_info">',
-                                    '<h1>' + product.title + '</h1>',
-                                    '<p>' + product.description + '</p>',
-                                    '<p><?= __('Price: ') ?>' + product.price + '<?= __('$') ?></p>',
-                                    source == 'index' 
-                                    ? '<a class="add-to-cart" data-id="' + product.id + '"><button><?= __('Add') ?></button></a>' 
-                                    : '<a class="remove-from-cart" data-id="' + product.id + '"><button><?= __('Remove') ?></button></a>',
-                                '</div>',
-                            '</div>'
-                        ].join('');
-                    });
-                    if (source == 'cart') {
-                        html += [
-                            '<form action="#cart">',
-                                '{{ csrf_field() }}',
-                                '<fieldset>',
-                                    '<input type="text" id="name" placeholder="<?= __('Name') ?>" autocomplete="off" value="', 
-                                        old != null && old.name != null ? '' + old.name + '' : '' ,
-                                    '">',
-                                    '<p style="color:red">',
-                                        errors != null && errors.name != null ? '' + errors.name + '' : '' ,
-                                    '</p>',
-                                    '<input type="text" id="contact" placeholder="<?= __('Contact Information') ?>" autocomplete="off" value="', 
-                                        old != null && old.contact != null ? '' + old.contact + '' : '' ,
-                                    '">',
-                                    '<p style="color:red">',
-                                        errors != null && errors.contact != null ? '' + errors.contact + '' : '' ,
-                                    '</p>',
-                                    '<input type="text" id="comments" placeholder="<?= __('Comments') ?>" autocomplete="off" value="', 
-                                        old != null && old.comments != null ? '' + old.comments + '' : '' ,
-                                    '">',
-                                    '<p style="color:red">',
-                                        errors != null && errors.comments != null ? '' + errors.comments + '' : '' ,
-                                    '</p>',
-                                    '<input id="checkout" name="checkout" type="submit" value="<?= __('Checkout') ?>">',
-                                '</fieldset>',
-                            '</form>',
-                        ].join('');
-                    }
-                } else {
-                    html = [
-                        '<form action="#login" method="get">',
-                            '{{ csrf_field() }}',
-                            '<fieldset>',
-                                '<input type="text" name="username" placeholder="<?= __('Username') ?>" autocomplete="off" >',
-                                '<p style="color:red">',
-                                    errors != null && errors.username != null ? '' + errors.username + '' : '' ,
-                                '</p>',
-                                '<input type="password" name="password" placeholder="<?= __('Password') ?>" autocomplete="off" >',
-                                '<p style="color:red">',
-                                    errors != null && errors.password != null ? '' + errors.password + '' : '' ,
-                                '</p>',
-                                '<input type="submit" id="login" name="login" value="<?= __('Login') ?>">',
-                            '</fieldset>',
-                        '</form>',
+                html = [].join('');
+                $.each(products, function (key, product) {
+                    html += [
+                        '<div class="product">',
+                            '<img src="/storage/'+ product.image + '" alt="">',
+                            '<div class="product_info">',
+                                '<h1>' + product.title + '</h1>',
+                                '<p>' + product.description + '</p>',
+                                '<p><?= __('Price: ') ?>' + product.price + '<?= __('$') ?></p>',
+                                source == 'index' 
+                                ? '<a class="add-to-cart" data-id="' + product.id + '"><button><?= __('Add') ?></button></a>' : '', 
+                                source == 'cart' 
+                                ? '<a class="remove-from-cart" data-id="' + product.id + '"><button><?= __('Remove') ?></button></a>' : '',
+                                source == 'products' ?
+                                '<a class="edit-product" data-id="' + product.id + '"><button><?= __('Edit') ?></button></a>': '',
+                            '</div>',
+                        '</div>'
                     ].join('');
-                }
+                });
                 return html;
             }
 
@@ -106,7 +62,7 @@
                     dataType: 'json',
                     data: {id: $(this).attr('data-id')},
                     success: function (response) {
-                        $('.cart .list').html(renderList(response, 'cart'));
+                        $('.cart .list').html(renderList(response.products, 'cart'));
                     }
                 });
             });
@@ -116,41 +72,75 @@
                     dataType: 'json',
                     data: {id: $(this).attr('data-id')},
                     success: function (response) {
-                        $('.cart .list').html(renderList(response, 'cart'));
+                        $('.cart .list').html(renderList(response.products, 'cart'));
                     }
                 });
             });
             
-            $(document).on('click', '#checkout', function() {               
+            $(document).on('click', '#checkout', function() {           
                 $.ajax('/cart', {
                     dataType: 'json',
                     data: {
                         name: document.getElementById('name').value,
                         contact: document.getElementById('contact').value,
                         comments: document.getElementById('comments').value,
-                        checkout: document.getElementById('checkout').value
+                        checkout: 'send-order'
                     },
                     success: function (response) {
-                        $('.cart .list').html(renderList(response.products, 'cart', response.errors, response.old));
+                        $('.cart .list').html(renderList(response.products, 'cart'));
+                        if ('name' in response.errors) {
+                            document.getElementById('name-err').innerHTML = response.errors.name;
+                        } else {
+                            document.getElementById('name-err').innerHTML = '';
+                        }
+                        if ('contact' in response.errors) {
+                            document.getElementById('contact-err').innerHTML = response.errors.contact;
+                        } else {
+                            document.getElementById('contact-err').innerHTML = '';
+                        }
+                        if ('comments' in response.errors) {
+                            document.getElementById('comments-err').innerHTML = response.errors.comments;
+                        } else {
+                            document.getElementById('comments-err').innerHTML = '';
+                        }
                     }
                 });
             });
-
-            $(document).on('click', '#login', function() {               
+            
+            $(document).on('click', '#login', function() {
                 $.ajax('/login', {
                     dataType: 'json',
                     data: {
                         username: document.getElementById('username').value,
-                        password: document.getElementById('password').value
+                        password: document.getElementById('password').value,
+                        login: 'login'
                     },
                     success: function (response) {
-                        $('.login .list').html(renderList(response, 'login', response.errors, response.old));
+                        console.log(response);
+                        if ('username' in response.errors) {
+                            document.getElementById('username-err').innerHTML = response.errors.username;
+                        } else {
+                            document.getElementById('username-err').innerHTML = '';
+                        }
+                        if ('password' in response.errors) {
+                            document.getElementById('password-err').innerHTML = response.errors.password;
+                        } else {
+                            document.getElementById('password-err').innerHTML = '';
+                        }
+                        if ('credentials' in response.errors) {
+                            document.getElementById('credentials-err').innerHTML = response.errors.credentials;
+                        } else {
+                            document.getElementById('credentials-err').innerHTML = '';
+                        }
+                        if ('login' in response) {
+                            window.location.hash = "#products";
+                        }
                     }
                 });
             });
             
-
             
+
 
             
 
@@ -173,20 +163,28 @@
                             success: function (response) {
                                 console.log(response);
                                 // Render the products in the cart list
-                                $('.cart .list').html(renderList(response, 'cart'));
+                                $('.cart .list').html(renderList(response.products, 'cart'));
                             }
                         });
                         break;
                     case '#login':
+                        // Show the login page
                         $('.login').show();
-                        
-                        $.ajax('/login', {
+                        break;
+                    case '#products':
+                        // Show the products page
+                        $('.products').show();
+                        // Load the products from the server
+                        $.ajax('/products', {
                             dataType: 'json',
                             success: function (response) {
-                                $('.login .list').html(renderList(response, 'login'));
+                                console.log(response);
+                                // Render the products 
+                                $('.products .list').html(renderList(response.products, 'products'));
                             }
                         });
                         break;
+                    
                     default:
                         // If all else fails, always default to index
                         // Show the index page
@@ -225,10 +223,40 @@
 
             <!-- The cart element where the products list is rendered -->
             <div class="list"></div>
+
+            <!-- The cart element where the form and errors are rendered -->
+            <fieldset style="width:28%;margin-left:35%;margin-top:5%;">
+                <input type="text" id="name" autocomplete="off" placeholder="Name">
+                <p id="name-err" style="color:red"></p>
+                <input type="text" id="contact" autocomplete="off" placeholder="Contact">
+                <p id="contact-err" style="color:red"></p>
+                <input type="text" id="comments" autocomplete="off" placeholder="Comments">
+                <p id="comments-err" style="color:red"></p>
+                <button id="checkout" style="margin-left:10%;width:80%" value=""><?= __('Checkout') ?></button>
+            </fieldset>
         </div>
+
+        <!-- The login page -->
         <div class="page login">
-            <!-- The login element where the products list is rendered -->
+            <fieldset style="width:28%;margin-left:35%;margin-top:5%;">
+                <p id="credentials-err" style="color:red"></p>
+                <input type="text" id="username" autocomplete="off" placeholder="Username">
+                <p id="username-err" style="color:red"></p>
+                <input type="password" id="password" autocomplete="off" placeholder="Password">
+                <p id="password-err" style="color:red"></p>
+                <button id="login" style="margin-left:10%;width:80%" value=""><?= __('Login') ?></button>
+            </fieldset>
+        </div>
+
+        <!-- The products page -->
+        <div class="page products">
+        
+            <a href="#product" class="button"><button><?= __('Add') ?></button></a>
+            <a href="#login" class="button"><button><?= __('Logout') ?></button></a>
+
+            <!-- The products element where the products list is rendered -->
             <div class="list"></div>
         </div>
+        
     </body>
 </html>
