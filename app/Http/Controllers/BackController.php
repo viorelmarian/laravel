@@ -39,7 +39,9 @@ class BackController extends Controller
             $product = new Product();
         }
 
-        $productInfo = $product->toArray();
+        if ($product) {
+            $productInfo = $product->toArray();
+        }
         if (null !== request()->input('save')) {
             $productInfo = Validator::make(request()->all(), [
                 'title' => 'required',
@@ -80,15 +82,15 @@ class BackController extends Controller
             $product->image = $newImage;
 
             $product->save();
+
             if (request()->ajax()) {
-                $result = [
-                    'errors' => []
-                ];
-                return json_encode($result);
+                return json_encode('success');
             }
             return redirect('/products');
         }
-
+        if (request()->ajax()) {
+            return json_encode($productInfo);
+        }
         
         return view('back.product', ['productInfo' => $productInfo]);
     }

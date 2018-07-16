@@ -33,19 +33,39 @@
                             '<div class="product_info">',
                                 '<h1>' + product.title + '</h1>',
                                 '<p>' + product.description + '</p>',
-                                '<p><?= __('Price: ') ?>' + product.price + '<?= __('$') ?></p>',
+                                '<p><?= __('Price: ') ?>' + product.price + '<?= __(' $') ?></p>',
                                 source == 'index' 
                                 ? '<a class="add-to-cart" data-id="' + product.id + '"><button><?= __('Add') ?></button></a>' : '', 
                                 source == 'cart' 
                                 ? '<a class="remove-from-cart" data-id="' + product.id + '"><button><?= __('Remove') ?></button></a>' : '',
                                 source == 'products' 
-                                ? '<a class="edit-product" data-id="' + product.id + '"><button><?= __('Edit') ?></button></a>' 
+                                ? '<a href="#product" class="edit-product" data-id="' + product.id + '"><button><?= __('Edit') ?></button></a>' 
                                 + '<a class="delete-product" data-id="' + product.id + '"><button><?= __('Delete') ?></button></a>'
                                 : '',
                             '</div>',
                         '</div>'
                     ].join('');
                 });
+                return html;
+            }
+
+            function renderProduct(productInfo, source) {
+                html = [
+                    '<fieldset style="margin:6%;background-color: #efb2d1">',
+                        '<div style="margin:5%;align:left" class="preview">',
+                            source == 'edit-product' ? '<img src="storage/' + productInfo.image + '" alt="image" width="100" height="100">' : '',
+                        '</div>',
+                        '<input type="text" id="title" autocomplete="off" placeholder="Title" value="' + productInfo.title + '">',
+                        '<p id="title-err" style="color:red"></p>',
+                        '<input type="text" id="description" autocomplete="off" placeholder="Description" value="' + productInfo.description + '">',
+                        '<p id="description-err" style="color:red"></p>',
+                        '<input type="text" id="price" autocomplete="off" placeholder="Price" value="' + productInfo.price + '">',
+                        '<p id="price-err" style="color:red"></p>',
+                        '<input type="file" name="image" id="image" style="margin:8%;">',
+                        '<p id="image-err" style="color:red"></p>',
+                        '<button type="button" data-id="' + productInfo.id + '" id="save" style="margin-left:10%;width:80%" value=""><?= __('Save') ?></button>',
+                    '</fieldset>',
+                ].join('');
                 return html;
             }
 
@@ -80,48 +100,85 @@
             });
 
             $(document).on('click', '.edit-product', function() {
-                $.ajax('/cart', {
+                $.ajax('/product', {
                     dataType: 'json',
                     data: {id: $(this).attr('data-id')},
                     success: function (response) {
-                        $('.cart .list').html(renderList(response.products, 'cart'));
+                        console.log(response);
+                        $('.product-panel .list').html(renderProduct(response, 'edit-product'));
                     }
                 });
             });
-            
 
-            $(document).on('click', '#save', function() {
-                console.log();
+            $(document).on('click', '#add-product', function() {
                 $.ajax('/product', {
                     dataType: 'json',
-                    data: {
-                        title: document.getElementById('title').value,
-                        description: document.getElementById('description').value,
-                        price: document.getElementById('price').value,
-                        image: document.getElementById('image').value,
-                        save: 'save'
-                    },
+                    success: function (response) {
+                        $('.product-panel .list').html(renderProduct(response, 'add-product'));
+                        $('#title').removeAttr('value');
+                        $('#description').removeAttr('value');
+                        $('#price').removeAttr('value');
+                        $('#save').removeAttr('data-id');
+                    }
+                });
+            });
+
+            $(document).on('click', '#save', function() {
+                
+                var title =$('#title').val();
+                var description = $('#description').val();
+                var price = $('#price').val();
+                var save = "save";
+
+                formData = new FormData();
+                
+                formData.append('title', title);
+                formData.append('description', description);
+                formData.append('price', price);
+                formData.append('save', save);
+                
+                if ($('#image')[0].files[0]) {
+                    var image = $('#image')[0].files[0];
+                    formData.append('image', image);
+                }
+
+                if ($(this).attr('data-id')) {
+                    var id = $(this).attr('data-id');
+                    formData.append('id', id);
+                }
+                                    
+                $.ajax('/product', {
+                    data: formData,
+                    cache: false,
+                    dataType: "json",
+                    contentType: false,
+                    processData: false,
+                    type: 'POST',
                     success: function (response) {
                         console.log(response);
-                        if ('title' in response.errors) {
-                            document.getElementById('title-err').innerHTML = response.errors.title;
+                        if (response == 'success') {
+                            window.location.hash = "#products";
                         } else {
-                            document.getElementById('title-err').innerHTML = '';
-                        }
-                        if ('description' in response.errors) {
-                            document.getElementById('description-err').innerHTML = response.errors.description;
-                        } else {
-                            document.getElementById('description-err').innerHTML = '';
-                        }
-                        if ('price' in response.errors) {
-                            document.getElementById('price-err').innerHTML = response.errors.price;
-                        } else {
-                            document.getElementById('price-err').innerHTML = '';
-                        }
-                        if ('image' in response.errors) {
-                            document.getElementById('image-err').innerHTML = response.errors.image;
-                        } else {
-                            document.getElementById('image-err').innerHTML = '';
+                            if ('title' in response.errors) {
+                                document.getElementById('title-err').innerHTML = response.errors.title;
+                            } else {
+                                document.getElementById('title-err').innerHTML = '';
+                            }
+                            if ('description' in response.errors) {
+                                document.getElementById('description-err').innerHTML = response.errors.description;
+                            } else {
+                                document.getElementById('description-err').innerHTML = '';
+                            }
+                            if ('price' in response.errors) {
+                                document.getElementById('price-err').innerHTML = response.errors.price;
+                            } else {
+                                document.getElementById('price-err').innerHTML = '';
+                            }
+                            if ('image' in response.errors) {
+                                document.getElementById('image-err').innerHTML = response.errors.image;
+                            } else {
+                                document.getElementById('image-err').innerHTML = '';
+                            }
                         }
                     }
                 });
@@ -204,8 +261,6 @@
                     }
                 });
             });
-            
-            
 
 
             
@@ -244,7 +299,6 @@
                             dataType: 'json',
                             success: function (response) {
                                 // Render the products 
-                                console.log(response.login);
                                 if (response.login == 'denied') {
                                     window.location.hash = '#login';
                                 } else {
@@ -256,8 +310,17 @@
                         });
                         break;
                     case '#product':
-
-                        $('.product').show();
+                        $.ajax('/product', {
+                            dataType: 'json',
+                            success: function (response) {
+                                if (response.login == 'denied') {
+                                    window.location.hash = '#login';
+                                } else {
+                                    $('.product-panel').show();
+                                    
+                                }
+                            }
+                        });
                         break;
                         
                     
@@ -335,22 +398,8 @@
         </div>
 
         <!-- The product page -->
-        <div class="page product" style="width:40%;margin-left:30%">
-            <div style="margin:5%">
-                <img src="" alt="image" width="100" height="100">
-            </div>
-            <fieldset style="margin:6%;background-color: #efb2d1">
-                <input type="text" id="title" autocomplete="off" placeholder="Title">
-                <p id="title-err" style="color:red"></p>
-                <input type="text" id="description" autocomplete="off" placeholder="Description">
-                <p id="description-err" style="color:red"></p>
-                <input type="text" id="price" autocomplete="off" placeholder="Price">
-                <p id="price-err" style="color:red"></p>
-                <input type="file" name="image" id="image" style="margin:8%;">
-                <p id="image-err" style="color:red"></p>
-                <button type="button" id="save" style="margin-left:10%;width:80%" value=""><?= __('Save') ?></button>
-            </fieldset>
+        <div class="page product-panel" style="width:40%;margin-left:30%">
+            <div class="list"></div>
         </div>
-        
     </body>
 </html>
