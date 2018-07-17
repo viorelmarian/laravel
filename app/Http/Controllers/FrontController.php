@@ -115,7 +115,7 @@ class FrontController extends Controller
                 session()->put('logged','ok');
                 if (request()->ajax()) {
                     $response = [
-                        'login' => "success",
+                        'login' => true,
                         'errors' => [],
                     ];
                     return json_encode($response);
@@ -131,12 +131,6 @@ class FrontController extends Controller
                 return json_encode($response);
             }
         } 
-        if (request()->ajax()) {
-            $response = [
-                'login' => 'denied'
-            ];
-            return json_encode($response);
-        }
         return view('front.login');
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use Closure;
+use Closure; 
 
 class Authentication
 {
@@ -16,6 +16,10 @@ class Authentication
     public function handle($request, Closure $next)
     {
         if (!session()->has('logged')) {
+            if ($request->ajax()) {
+                throw new \Exception("Access denied", 403);
+            }
+            
             header('Location: /login');
             exit();
         }

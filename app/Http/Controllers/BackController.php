@@ -10,8 +10,9 @@ use Validator;
 class BackController extends Controller
 {
     public function logout() {
-            session()->forget('logged');
-            return redirect('/login');
+        session()->forget('logged');
+       
+        return redirect('/login');
     }
 
     public function products() {
@@ -32,33 +33,29 @@ class BackController extends Controller
     }
 
     public function product(Request $request) {
-        $query = Product::query();
         if (request()->has('id')) {
             $product = Product::find(request()->input('id'));
         } else {
             $product = new Product();
         }
-
-        if ($product) {
-            $productInfo = $product->toArray();
-        }
+        
         if (null !== request()->input('save')) {
-            $productInfo = Validator::make(request()->all(), [
+            $productValidator = Validator::make(request()->all(), [
                 'title' => 'required',
                 'description' => 'required',
                 'price' => 'required|numeric',
                 'image' => (!request()->has('id') ? 'required|' : '') . 'image'
             ]);
 
-            if ($productInfo->fails()) {
+            if ($productValidator->fails()) {
                 if (request()->ajax()) {
                     $response = [
-                        'errors' => $productInfo->errors()
+                        'errors' => $productValidator->errors()
                     ];
                     return json_encode($response);
                 }
                 return redirect('/product' . (request()->has('id') ? '?id=' . request()->input('id') : ''))
-                    ->withErrors($productInfo)
+                    ->withErrors($productValidator)
                     ->withInput();
             }
 
@@ -84,14 +81,15 @@ class BackController extends Controller
             $product->save();
 
             if (request()->ajax()) {
-                return json_encode('success');
+                return ['success' => true];
             }
             return redirect('/products');
         }
+
         if (request()->ajax()) {
-            return json_encode($productInfo);
+            return $product;
         }
         
-        return view('back.product', ['productInfo' => $productInfo]);
+        return view('back.product', ['productInfo' => $product->toArray()]);
     }
 }
