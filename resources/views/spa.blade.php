@@ -90,6 +90,8 @@
                     data: {id: $(this).attr('data-id')},
                     success: function (response) {
                         $('.cart-page .list').html(renderList(response.products, 'cart'));
+
+                        window.location.hash = '#products'; 
                     }
                 });
             });
@@ -107,17 +109,11 @@
                     success: function (response) {
                         $('.cart-page .list').html(renderList(response.products, 'cart'));
 
-                        'name' in response.errors 
-                            ? $('.name-err').html(response.errors.name)
-                            : $('.name-err').html('') 
-                        
-                        'contact' in response.errors 
-                            ? $('.contact-err').html(response.errors.contact)
-                            : $('.contact-err').html('') 
-                        
-                        'comments' in response.errors 
-                            ? $('.comments-err').html(response.errors.comments)
-                            : $('.comments-err').html('') 
+                        $('.name-err').html('name' in response.errors ? response.errors.name :''); 
+                        $('.contact-err').html('contact' in response.errors ? response.errors.contact :''); 
+                        $('.comments-err').html('comments' in response.errors ? response.errors.comments :'');
+
+                        window.location.hash = '#products'; 
                     }
                 });
             });
@@ -154,7 +150,7 @@
                 formData.append('title', $('.title').val());
                 formData.append('description', $('.description').val());
                 formData.append('price', $('.price').val());
-                formData.append('save', "save");
+                formData.append('save', true);
                 
                 if ($('.image')[0].files[0]) {
                     var image = $('.image')[0].files[0];
@@ -176,21 +172,10 @@
                         if (response.success) {
                             window.location.hash = "#products";
                         } else {
-                            'title' in response.errors 
-                            ? $('.title-err').html(response.errors.title)
-                            : $('.title-err').html('') 
-
-                            'description' in response.errors 
-                            ? $('.description-err').html(response.errors.description)
-                            : $('.description-err').html('') 
-
-                            'price' in response.errors 
-                            ? $('.price-err').html(response.errors.price)
-                            : $('.price-err').html('') 
-                            
-                            'image' in response.errors 
-                            ? $('.image-err').html(response.errors.image)
-                            : $('.image-err').html('') 
+                            $('.title-err').html('title' in response.errors ? response.errors.title :'');
+                            $('.description-err').html('description' in response.errors ? response.errors.description :'');
+                            $('.price-err').html('price' in response.errors ? response.errors.price :'');
+                            $('.image-err').html('image' in response.errors ? response.errors.image :'');
                         }
                     }
                 });
@@ -198,10 +183,13 @@
             
             //Logout from the Admin page.
             $(document).on('click', '.logout', function() {
+
                 $.ajax('/logout', {
-                    dataType: 'json'
+                    dataType: 'json',
+                    success: function() {
+                        window.location.hash = '#login';
+                    }
                 });
-                window.location.hash = '#login';
             });
             
             //Login to the Admin page.
@@ -214,21 +202,16 @@
                         login: true
                     },
                     success: function (response) {
-                        'username' in response.errors 
-                        ? $('.username-err').html(response.errors.username)
-                        : $('.username-err').html('') 
-
-                        'password' in response.errors 
-                        ? $('.password-err').html(response.errors.password)
-                        : $('.password-err').html('') 
-
-                        'credentials' in response.errors 
-                        ? $('.credentials-err').html(response.errors.credentials)
-                        : $('.credentials-err').html('') 
-
-                        response.login
-                        ? window.location.hash = "#products"
-                        : '';
+                        $('.username-err').html('username' in response.errors ? response.errors.username :'');
+                        $('.password-err').html('password' in response.errors ? response.errors.password :'');
+                        $('.credentials-err').html('credentials' in response.errors ? response.errors.credentials :'');
+                        if (response.login) {
+                            $('.username').val('');
+                            $('.password').val('');
+                            window.location.hash = "#products";
+                        } else {
+                            alert('<?= __('Some error') ?>');
+                        }
                     }
                 });
             });
@@ -275,13 +258,8 @@
                         $.ajax('/products', {
                             dataType: 'json',
                             success: function (response) {
-                                // Render the products 
-                                if (response.login == 'denied') {
-                                    window.location.hash = '#login';
-                                } else {
-                                    $('.products-page').show();
-                                    $('.products-page .list').html(renderList(response, 'products'));
-                                }
+                                $('.products-page').show();
+                                $('.products-page .list').html(renderList(response, 'products'));
                             },
                             error: function () {
                                     window.location.hash = "#login";
@@ -408,7 +386,7 @@
                 <p class="description-err" style="color:red"></p>
                 <input type="text" class="price" autocomplete="off" placeholder="<?= __('Price') ?>" value="">
                 <p class="price-err" style="color:red"></p>
-                <input type="file" name="image" class="image" style="margin:8%;">
+                <input type="file" class="image" style="margin:8%;">
                 <p class="image-err" style="color:red"></p>
                 <button type="button" class="save" style="margin-left:10%;width:80%" value=""><?= __('Save') ?></button>
             </fieldset>
